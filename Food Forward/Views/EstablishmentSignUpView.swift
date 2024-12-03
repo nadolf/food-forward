@@ -1,4 +1,5 @@
 import SwiftUI
+import PhotosUI
 
 struct EstablishmentSignUpView: View {
     @State var name: String = ""
@@ -8,6 +9,7 @@ struct EstablishmentSignUpView: View {
     @State var address: String = ""
     @State var phoneNumber: String = ""
     @State var bio: String = "Bio"
+    @State var selectedPhoto: [PhotosPickerItem] = []
     
     var body: some View {
         Text("Create Account")
@@ -30,7 +32,9 @@ struct EstablishmentSignUpView: View {
                 .stroke(Color.white, lineWidth: 4) // Border
         )
         
-        Button("Change Profile Photo"){
+        PhotosPicker(selection: $selectedPhoto,
+                     matching: .any(of: [.images, .not(.screenshots)])) {
+            Text("Change Profile Picture")
         }
         
         TextField("Name", text: $name)
