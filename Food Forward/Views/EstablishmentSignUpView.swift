@@ -2,13 +2,7 @@ import SwiftUI
 import PhotosUI
 
 struct EstablishmentSignUpView: View {
-    @State var name: String = ""
-    @State var email: String = ""
-    @State var password: String = ""
-    @State var confirmPassword: String = ""
-    @State var address: String = ""
-    @State var phoneNumber: String = ""
-    @State var bio: String = "Bio"
+    @StateObject private var authViewModel = AuthViewModel()
     @State var selectedPhoto: [PhotosPickerItem] = []
     
     var body: some View {
@@ -19,17 +13,17 @@ struct EstablishmentSignUpView: View {
             // Circle background
             Circle()
                 .fill(Color.blue)
-                .frame(width: 100, height: 100) // Overall circle size
+                .frame(width: 100, height: 100)
             // Icon inside the circle
             Image(systemName: "person.fill")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 50, height: 50) // Icon size
+                .frame(width: 50, height: 50)
                 .foregroundColor(.white)
         }
         .overlay(
             Circle()
-                .stroke(Color.white, lineWidth: 4) // Border
+                .stroke(Color.white, lineWidth: 4)
         )
         
         PhotosPicker(selection: $selectedPhoto,
@@ -37,13 +31,14 @@ struct EstablishmentSignUpView: View {
             Text("Change Profile Picture")
         }
         
-        TextField("Name", text: $name)
-        TextField("Email Address", text: $email)
-        SecureField("Password", text: $password)
-        SecureField("Confirm Password", text: $confirmPassword)
-        TextField("Address", text: $address)
-        TextField("Phone Number", text: $phoneNumber)
-        TextEditor(text: $bio)
+        //Text Fields Sections
+        TextField("Name", text: $authViewModel.name)
+        TextField("Email Address", text: $authViewModel.email)
+        SecureField("Password", text: $authViewModel.password)
+        SecureField("Confirm Password", text: $authViewModel.confirmPassword)
+        TextField("Address", text: $authViewModel.address)
+        TextField("Phone Number", text: $authViewModel.phoneNumber)
+        TextEditor(text: $authViewModel.bio)
     }
 }
 

@@ -2,13 +2,7 @@ import SwiftUI
 import PhotosUI
 
 struct IndividualSignUpView: View {
-    @State var firstName: String = ""
-    @State var lastName: String = ""
-    @State var email: String = ""
-    @State var password: String = ""
-    @State var confirmPassword: String = ""
-    @State var address: String = ""
-    @State var phoneNumber: String = ""
+    @StateObject private var authViewModel = AuthViewModel()
     @State var selectedPhoto: [PhotosPickerItem] = []
 
     var body: some View{
@@ -20,18 +14,17 @@ struct IndividualSignUpView: View {
                 // Circle background
                 Circle()
                     .fill(Color.blue)
-                    .frame(width: 100, height: 100) // Overall circle size
+                    .frame(width: 100, height: 100)
 
-                // Icon inside the circle
                 Image(systemName: "person.fill")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 50, height: 50) // Icon size
+                    .frame(width: 50, height: 50)
                     .foregroundColor(.white)
             }
             .overlay(
                 Circle()
-                    .stroke(Color.white, lineWidth: 4) // Border
+                    .stroke(Color.white, lineWidth: 4)
             )
             
             PhotosPicker(selection: $selectedPhoto,
@@ -39,13 +32,14 @@ struct IndividualSignUpView: View {
                 Text("Change Profile Picture")
             }
             
-            TextField("First Name", text: $firstName)
-            TextField("Last Name", text: $lastName)
-            TextField("Email Address", text: $email)
-            SecureField("Password", text: $password)
-            SecureField("Confirm Password", text: $confirmPassword)
-            TextField("Address", text: $address)
-            TextField("Phone Number", text: $phoneNumber)
+            //Text Fields Sections
+            TextField("First Name", text: $authViewModel.firstName)
+            TextField("Last Name", text: $authViewModel.lastName)
+            TextField("Email Address", text: $authViewModel.email)
+            SecureField("Password", text: $authViewModel.password)
+            SecureField("Confirm Password", text: $authViewModel.confirmPassword)
+            TextField("Address", text: $authViewModel.address)
+            TextField("Phone Number", text: $authViewModel.phoneNumber)
             
             Button("Create Account"){}.buttonStyle(.borderedProminent)
         }
