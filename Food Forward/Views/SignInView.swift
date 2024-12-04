@@ -60,7 +60,11 @@ struct SignInView: View {
 
             // Navigation to HomeView when authenticated
             .navigationDestination(isPresented: $authViewModel.isAuthenticated) {
-                HomeView().environmentObject(authViewModel)
+                if authViewModel.accountType == "individual" {
+                    IndividualHomeView().environmentObject(authViewModel)
+                } else if authViewModel.accountType == "establishment" {
+                    EstablishmentHomeView().environmentObject(authViewModel)
+                }
             }
         }.navigationBarBackButtonHidden(true)
     }
