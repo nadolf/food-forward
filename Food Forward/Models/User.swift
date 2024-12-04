@@ -7,8 +7,10 @@ struct User {
     var address: String
     var profilePhotoURL: String
     var accountType: String
-    var firstName: String? // For individual
-    var lastName: String? // For individual
-    var name: String? // For establishment
-    var bio: String? // For establishment
+    var firstName: String?
+    var lastName: String?
+    var name: String?
+    var bio: String?
+    var password: String
+    var confirmPassword: String
 }

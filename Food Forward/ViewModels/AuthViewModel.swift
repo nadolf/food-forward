@@ -1,6 +1,6 @@
-import SwiftUI
-import Combine
 import Foundation
+import FirebaseAuth
+import Combine
 
 class AuthViewModel: ObservableObject {
     // Individual Specific
@@ -16,7 +16,7 @@ class AuthViewModel: ObservableObject {
     @Published var confirmPassword: String = ""
     @Published var phoneNumber: String = ""
     @Published var address: String = ""
-    @Published var profilePhotoURL: String = "" // Firebase Storage URL
+    @Published var profilePhotoURL: String = ""
     @Published var accountType: String = "" // "individual" or "Establishment"
     @Published var isAuthenticated: Bool = false
 
@@ -27,7 +27,6 @@ class AuthViewModel: ObservableObject {
     private let validationService = ValidationService()
     private let userService = UserService()
     
-
     func individualSignUp() {
         if !validationService.isValidEmail(email) {
             alertMessage = "Invalid Email"
@@ -47,7 +46,7 @@ class AuthViewModel: ObservableObject {
             return
         }
         
-        if firstName.isEmpty || lastName.isEmpty || phoneNumber.isEmpty || address.isEmpty {
+        if firstName.isEmpty || lastName.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty || phoneNumber.isEmpty || address.isEmpty {
             alertMessage = "All fields must be filled"
             showAlert = true
             return
@@ -62,16 +61,20 @@ class AuthViewModel: ObservableObject {
             profilePhotoURL: profilePhotoURL,
             accountType: "individual",
             firstName: firstName,
-            lastName: lastName
+            lastName: lastName,
+            name: nil,
+            bio: nil,
+            password: password,
+            confirmPassword: confirmPassword
         )
         
         // Register individual user
         userService.registerUser(user: user) { [weak self] success in
             DispatchQueue.main.async {
                 if success {
-                    self?.isAuthenticated = true
+                    self?.sendEmailVerification() // Email verification
                 } else {
-                    self?.alertMessage = "Registration failed. Try again."
+                    self?.alertMessage = "Sign Up failed, Please try again."
                     self?.showAlert = true
                 }
             }
@@ -111,24 +114,27 @@ class AuthViewModel: ObservableObject {
             address: address,
             profilePhotoURL: profilePhotoURL,
             accountType: "establishment",
+            firstName: nil,
+            lastName: nil,
             name: name,
-            bio: bio
+            bio: bio,
+            password: password,
+            confirmPassword: confirmPassword
         )
         
         // Register Establishment
         userService.registerUser(user: user) { [weak self] success in
             DispatchQueue.main.async {
                 if success {
-                    self?.isAuthenticated = true
+                    self?.sendEmailVerification() // Email verification
                 } else {
-                    self?.alertMessage = "Registration failed. Try again."
+                    self?.alertMessage = "Sign Up failed, Please try again."
                     self?.showAlert = true
                 }
             }
         }
     }
     
-    // Sign-Up Functionality
     func signUp() {
         if accountType == "individual" {
             individualSignUp()
@@ -140,34 +146,72 @@ class AuthViewModel: ObservableObject {
         }
     }
     
-    // Sign-In Functionality
-    func signIn() {
-        if !validationService.isValidEmail(email) {
-            alertMessage = "Invalid Email"
-            showAlert = true
-            return
-        }
-        
-        if !validationService.isValidPassword(password) {
-            alertMessage = "Invalid Password"
-            showAlert = true
-            return
-        }
-        
-        // Sign In Logic
-        userService.signIn(email: email, password: password) { [weak self] success in
+    private func sendEmailVerification() {
+        Auth.auth().currentUser?.sendEmailVerification { [weak self] error in
             DispatchQueue.main.async {
-                if success {
-                    self?.isAuthenticated = true
+                if let error = error {
+                    self?.alertMessage = "Failed to send email verification: \(error.localizedDescription)"
+                    self?.showAlert = true
                 } else {
-                    self?.alertMessage = "Sign-In failed. Check credentials."
+                    self?.alertMessage = "Account created! Please verify your email before signing in."
                     self?.showAlert = true
                 }
             }
         }
     }
     
-    // Sign-Out Functionality
+    func signIn() {
+        if !validationService.isValidEmail(email) {
+            alertMessage = "Invalid Email"
+            showAlert = true
+            return
+        }
+
+        if !validationService.isValidPassword(password) {
+            alertMessage = "Invalid Password"
+            showAlert = true
+            return
+        }
+
+        userService.signIn(email: email, password: password) { [weak self] success in
+            DispatchQueue.main.async {
+                if success {
+                    self?.fetchUserData() // Fetch user data after sign-in
+                    self?.isAuthenticated = true
+                } else {
+                    self?.alertMessage = "Unsuccessful Sign-in. Please check email and/or password"
+                    self?.showAlert = true
+                }
+            }
+        }
+    }
+
+    func fetchUserData() {
+        guard let userId = userService.getCurrentUserId() else {
+            print("User ID does not exist")
+            return
+        }
+
+        userService.fetchUserDetails(userId: userId) { [weak self] user in
+            DispatchQueue.main.async {
+                if let user = user {
+                    print("User data fetched: \(user)")
+                    self?.firstName = user.firstName ?? ""
+                    self?.lastName = user.lastName ?? ""
+                    self?.email = user.email
+                    self?.phoneNumber = user.phoneNumber
+                    self?.address = user.address
+                    self?.profilePhotoURL = user.profilePhotoURL
+                    self?.accountType = user.accountType
+                } else {
+                    print("Failed to fetch user data")
+                    self?.alertMessage = "Failed to fetch user data."
+                    self?.showAlert = true
+                }
+            }
+        }
+    }
+    
     func signOut() {
         userService.signOut()
         isAuthenticated = false
