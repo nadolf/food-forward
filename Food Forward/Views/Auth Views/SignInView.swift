@@ -53,12 +53,10 @@ struct SignInView: View {
                 }
 
                 // Navigation Link for Sign-Up
-                NavigationLink("Don't have an account? Sign Up", destination: IndividualSignUpView())
+                NavigationLink("Don't have an account? Sign Up", destination: SignUpSelectionView())
                     .padding(.top)
             }
             .padding()
-
-            // Navigation to HomeView when authenticated
             .navigationDestination(isPresented: $authViewModel.isAuthenticated) {
                 if authViewModel.accountType == "individual" {
                     IndividualHomeView().environmentObject(authViewModel)
