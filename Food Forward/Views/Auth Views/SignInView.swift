@@ -11,7 +11,6 @@ struct SignInView: View {
                 Text("Welcome to Food Forward")
                     .font(.largeTitle)
                     .fontWeight(.bold)
-                    .padding(.bottom, 40)
 
                 // Email and Password Input Fields
                 TextField("Email", text: $authViewModel.email)

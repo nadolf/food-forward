@@ -185,6 +185,10 @@ class AuthViewModel: ObservableObject {
             }
         }
     }
+    
+    func getCurrentUserID() -> String? {
+        return userService.getCurrentUserId()
+    }
 
     func fetchUserData() {
         guard let userId = userService.getCurrentUserId() else {

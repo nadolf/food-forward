@@ -15,7 +15,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 @main
 struct Food_ForwardApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    @StateObject private var authViewModel = AuthViewModel()
+    @StateObject var authViewModel = AuthViewModel()
 
     var body: some Scene {
         WindowGroup {
