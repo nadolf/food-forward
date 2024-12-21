@@ -202,6 +202,8 @@ class AuthViewModel: ObservableObject {
                     print("User data fetched: \(user)")
                     self?.firstName = user.firstName ?? ""
                     self?.lastName = user.lastName ?? ""
+                    self?.name = user.name ?? ""
+                    self?.bio = user.bio ?? ""
                     self?.email = user.email
                     self?.phoneNumber = user.phoneNumber
                     self?.address = user.address
