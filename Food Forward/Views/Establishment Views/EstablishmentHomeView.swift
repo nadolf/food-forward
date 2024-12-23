@@ -3,8 +3,10 @@ import SwiftUI
 struct EstablishmentHomeView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     
-    @State private var listings: [Listing] = []
-    @State private var isLoading: Bool = false
+    @State private var currentListings: [Listing] = []
+    @State private var pickupListings: [Listing] = []
+    @State private var isLoadingCurrent: Bool = false
+    @State private var isLoadingPickups: Bool = false
     
     var body: some View {
         NavigationView {
@@ -30,20 +32,18 @@ struct EstablishmentHomeView: View {
                     .font(.headline)
                     .padding(.top)
                 
-                if isLoading {
+                if isLoadingCurrent {
                     ProgressView("Loading Listings...")
                         .padding()
-                } else if listings.isEmpty {
+                } else if currentListings.isEmpty {
                     Text("No listings available.")
                         .foregroundColor(.secondary)
                         .padding()
                 } else {
-                    List(listings, id: \.id) { listing in
+                    List(currentListings, id: \.id) { listing in
                         VStack(alignment: .leading, spacing: 8) {
                             Text(listing.itemName)
                                 .font(.headline)
-                            Text("Description: \(listing.itemDescription)")
-                                .font(.subheadline)
                             Text("Quantity: \(listing.quantity)")
                                 .font(.subheadline)
                             Text("Expires on: \(listing.expirationDate.formatted(date: .abbreviated, time: .omitted))")
@@ -54,22 +54,60 @@ struct EstablishmentHomeView: View {
                     }
                 }
                 
+                Text("Upcoming Pickups")
+                    .font(.headline)
+                    .padding(.top)
+                if isLoadingPickups{
+                    ProgressView("Loading Pickup Listings...")
+                        .padding()
+                }
+                else if pickupListings.isEmpty {
+                    Text("No Upcoming Pickups")
+                        .foregroundColor(.secondary)
+                        .padding()
+                }
+                else {
+                    List(pickupListings, id: \.id) { listing in
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(listing.itemName)
+                                .font(.headline)
+                            Text("Item Type: \(listing.itemType)")
+                                .font(.subheadline)
+                            Text("Qty: \(listing.quantity)")
+                                .font(.subheadline)
+                            Text("PickUp Time & Date")
+                                .font(.subheadline)
+                        }
+                        .padding(.vertical,4)
+                    }
+                }
                 Spacer()
             }
             .padding()
             .navigationTitle("Establishment Home")
         }
         .onAppear {
-            fetchListings()
+            fetchCurrentListings()
+            fetchPickupsListings()
             authViewModel.fetchUserData()
         }
     }
     
-    private func fetchListings() {
-        isLoading = true
+    private func fetchCurrentListings() {
+        isLoadingCurrent = true
         Food_Forward.fetchListings { fetchedListings in
-            self.listings = fetchedListings.filter { $0.userId == authViewModel.getCurrentUserID() }
-            self.isLoading = false
+            self.currentListings = fetchedListings.filter { $0.userId == authViewModel.getCurrentUserID() }
+            self.isLoadingCurrent = false
+        }
+    }
+    
+    private func fetchPickupsListings() {
+        isLoadingPickups = true
+        Food_Forward.fetchListings { fetchedListings in
+            self.pickupListings = fetchedListings.filter {
+                $0.userId == authViewModel.getCurrentUserID() && $0.claimedByUserId?.isEmpty == false
+            }
+            self.isLoadingPickups = false
         }
     }
 }
