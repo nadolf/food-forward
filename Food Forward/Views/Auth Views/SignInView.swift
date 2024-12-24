@@ -60,7 +60,7 @@ struct SignInView: View {
                 if authViewModel.accountType == "individual" {
                     IndividualHomeView().environmentObject(authViewModel)
                 } else if authViewModel.accountType == "establishment" {
-                    EstablishmentHomeView().environmentObject(authViewModel)
+                    EstablishmentView().environmentObject(authViewModel)
                 }
             }
         }.navigationBarBackButtonHidden(true)

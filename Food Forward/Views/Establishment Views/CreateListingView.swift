@@ -5,7 +5,7 @@ struct CreateListingView: View {
     @State private var itemType = ""
     @State private var itemDescription = ""
     @State private var quantity = ""
-    @State private var expirationDate = Date() // Use DatePicker for selecting a date
+    @State private var expirationDate = Date()
     @Environment(\.dismiss) var dismiss
 
     var userID: String
@@ -19,7 +19,7 @@ struct CreateListingView: View {
                 TextField("Item Description", text: $itemDescription)
                 
                 TextField("Quantity", text: $quantity)
-                    .keyboardType(.numberPad) // Restrict input to numbers
+                    .keyboardType(.numberPad)
                 
                 DatePicker("Expiration Date", selection: $expirationDate, displayedComponents: .date)
             }
